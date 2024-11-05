@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script>
+      function inputText()
+      {
+          const text = prompt("텍스트를 입력해주세요");
+
+          if(text===null)
+          {
+              alert("텍스트값을 입력해주세요");
+          }
+
+          const textDiv =document.getElementById("text");
+          textDiv.innerHTML = text;
+
+          const result = document.getElementById("result");
+          result.className = "center";
+      }
+
+      function changeColor(color)
+      {
+          const text = document.getElementById("text");
+          text.style.color = color;
+
+          alert(`${color}색으로 변경됩니다`)
+      }
+
+  </script>
+
+  <style>
+    #result
+    {
+    }
+
+    .hidden
+    {
+      visibility: hidden;
+    }
+
+    .center
+    {
+      text-align: center;
+    }
+
+  </style>
+</head>
+<body>
+  <button onclick="inputText()">텍스트 입력</button>
+
+  <div id="result" class="center hidden">
+    <div id = "text">여기</div>
+    <div>
+      <button onclick="changeColor('red')">빨강</button>
+      <button onclick="changeColor('blue')">파랑</button>
+      <button onclick="changeColor('yellow')">노랑</button>
+    </div>
+  </div>
+
+</body>
+</html>
