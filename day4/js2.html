@@ -2,17 +2,26 @@
 <html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>인라인 방식</title>
+  <title>embedded 방식</title>
   <style>
     div
     {
       width: 100px;
       height: 100px;
-      background-color: red;
+      background-color: blue;
     }
   </style>
+
+
 </head>
 <body>
-  <div onclick="alert('hello')"></div>
+  <div onclick="hello();"></div>
 </body>
 </html>
+
+<script>
+    function hello()
+    {
+        alert("hello");
+    }
+</script>

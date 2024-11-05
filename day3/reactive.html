@@ -1,10 +1,38 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
   <meta charset="UTF-8">
-  <title>$Title$</title>
+  <title>미디어 쿼리</title>
+  <style>
+    #div1
+    {
+      background-color: blue;
+    }
+    @media(max-width: 1280px)
+    {
+      body
+      {
+        font-size: x-large;
+      }
+      #div1
+      {
+        background-color: aqua;
+      }
+    }
+    @media(max-width: 600px)
+    {
+      body
+      {
+        font-size: small;
+      }
+      #div1
+      {
+        background-color: red;
+      }
+    }
+  </style>
 </head>
 <body>
-$END$
+  <div id="div1">div</div>
 </body>
 </html>
