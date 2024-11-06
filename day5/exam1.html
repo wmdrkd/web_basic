@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.slim.min.js" integrity="sha256-kmHvs0B+OpCW5GVHUNjv9rOmY0IvSIRcf7zGUDTDQM8=" crossorigin="anonymous"></script>
+  <script>
+    function inputText()
+    {
+        const text = $('#itext').val();
+        if(text)
+        {
+            $("#vText").text(text);
+            $("#vText").css("font-size", "xx-large");
+            $("#result").attr("class","center");
+        }
+        else
+        {
+            alert("텍스트를 입력해주세요");
+        }
+    }
+
+    function changeColor(color)
+    {
+        $("#vText").css("color",color);
+    }
+
+  </script>
+  <style>
+    #result
+    {
+    }
+    .center
+    {
+      text-align: center;
+    }
+    .hidden
+    {
+      visibility: hidden;
+    }
+  </style>
+</head>
+<body>
+  <label>
+    <input type="text" id="itext">
+  </label>
+  <button onclick="inputText()">입력</button><br>
+  <div id="result" class="hidden">
+    <div id="vText">여기</div>
+    <button onclick="changeColor('red')">빨강</button>
+    <button onclick="changeColor('blue')">파랑</button>
+    <button onclick="changeColor('green')">초록</button>
+  </div>
+</body>
+</html>
