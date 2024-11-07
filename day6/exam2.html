@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+  <style>
+    #background
+    {
+      position: absolute;
+      left: 50px;
+      top: 50px;
+      width: 500px;
+      height: 500px;
+      border: 1px solid black;
+    }
+    #player
+    {
+      position: absolute;
+      left: 30px;
+      bottom: 80px;
+    }
+    .enemy
+    {
+      position: absolute;
+      right: 10px;
+      bottom: 100px;
+    }
+  </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script>
+      const playerWidth = 50;
+      const playerHeight = 50;
+
+      let enemyRight = 10;
+
+      let isJumping = false;
+      let isSpawning = false;
+
+      function jump()
+      {
+          if(isJumping === true)
+          {
+              return;
+          }
+
+          isJumping= true;
+          $("#player").animate({
+             bottom: "+=150px"
+          }, 500).animate({
+              bottom: "-=150px"
+          }, 500, () => {
+              isJumping = false;
+          });
+      }
+
+      function moveEnemy()
+      {
+          $(".enemy").css("right", "+=10px");
+      }
+
+      function respawnEnemy()
+      {
+          if(isSpawning)
+          {
+              return;
+          }
+
+          isSpawning = true;
+          setTimeout(() => {
+              $(".enemy").css("right", "-=100px");
+              isSpawning = false;
+          }, 1000);
+
+      }
+
+      function checkEnemyBounds()
+      {
+          const player = $(".enemy");
+          const playerLeft = parseInt(player.css("left"));
+          const playerTop = parseInt(player.css("top"));
+
+          if (playerLeft < -100)
+          {
+              respawnEnemy();
+          }
+
+      }
+
+      function checkGameOver()
+      {
+          const playerX = parseInt($("#player").css("left"));
+          const playerY = parseInt($("#player").css("bottom"));
+      }
+
+      function gameLoop()
+      {
+          moveEnemy();
+          requestAnimationFrame(gameLoop)
+      }
+
+      document.addEventListener("keydown", (event) =>
+      {
+          if (event.key === " ")
+          {
+              jump();
+          }
+      });
+
+      $(() => {
+          gameLoop();
+      });
+  </script>
+</head>
+<body>
+  <div id="background">
+    <div id="player">
+      <img src="assets/마리오.png" width="50px" height="50px">
+    </div>
+    <div class="enemy">
+      <img src="assets/킬러.webp" width="100px">
+    </div>
+  </div>
+</body>
+</html>
