@@ -25,16 +25,26 @@
       right: 10px;
       bottom: 100px;
     }
+    #score
+    {
+      text-align: center;
+      font-size: xxx-large;
+      color: black;
+    }
   </style>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
   <script>
       const playerWidth = 50;
       const playerHeight = 50;
 
-      let enemyRight = 10;
+      let enemySpeed = 10;
 
       let isJumping = false;
       let isSpawning = false;
+
+      let isDie = false;
+
+      let score = 0;
 
       function jump()
       {
@@ -55,7 +65,26 @@
 
       function moveEnemy()
       {
-          $(".enemy").css("right", "+=10px");
+          $(".enemy").css("right", `+=${enemySpeed}px`);
+          checkEnemyBounds();
+      }
+
+      function checkEnemyBounds()
+      {
+          const player = $(".enemy");
+          const playerLeft = parseInt(player.css("left"));
+
+
+          if (playerLeft < -100)
+          {
+              respawnEnemy();
+          }
+
+      }
+
+      function setScore(score)
+      {
+          $("#score").text(`SCORE : ${score}`);
       }
 
       function respawnEnemy()
@@ -65,37 +94,66 @@
               return;
           }
 
-          isSpawning = true;
-          setTimeout(() => {
-              $(".enemy").css("right", "-=100px");
-              isSpawning = false;
-          }, 1000);
-
-      }
-
-      function checkEnemyBounds()
-      {
-          const player = $(".enemy");
-          const playerLeft = parseInt(player.css("left"));
-          const playerTop = parseInt(player.css("top"));
-
-          if (playerLeft < -100)
+          if(!isDie)
           {
-              respawnEnemy();
+              score += 100;
+              setScore(score);
           }
 
+          isSpawning = true;
+          enemySpeed = Math.random() * 15 + 5; // 0.0 ~ 1.0
+          // 5 ~ 20
+
+          const spawnTime = Math.random() * 1000 + 500;
+
+          setTimeout(() => {
+              $(".enemy").css("right", "-100px");
+              isSpawning = false;
+          }, spawnTime);
+
       }
+
+
 
       function checkGameOver()
       {
-          const playerX = parseInt($("#player").css("left"));
-          const playerY = parseInt($("#player").css("bottom"));
+          const player = document.getElementById("player");
+          const enemy = document.getElementById("enemy");
+
+          let isGameOver = false;
+
+          if(checkCollision(player, enemy))
+          {
+              console.log("Game Over");
+              isGameOver = true;
+          }
+      }
+
+      function checkCollision(div1, div2)
+      {
+          // div1과 div2의 위치와 크기를 구합니다.
+          const rect1 = div1.getBoundingClientRect();
+          const rect2 = div2.getBoundingClientRect();
+
+          // 충돌 체크 (겹침)
+          const isColliding = !(rect1.right < rect2.left ||   // div1의 오른쪽 끝이 div2의 왼쪽 끝보다 왼쪽에 있을 때
+              rect1.left > rect2.right ||   // div1의 왼쪽 끝이 div2의 오른쪽 끝보다 오른쪽에 있을 때
+              rect1.bottom < rect2.top ||   // div1의 아래쪽 끝이 div2의 위쪽 끝보다 위에 있을 때
+              rect1.top > rect2.bottom);    // div1의 위쪽 끝이 div2의 아래쪽 끝보다 아래에 있을 때
+
+          return isColliding;
       }
 
       function gameLoop()
       {
           moveEnemy();
-          requestAnimationFrame(gameLoop)
+
+          if(checkGameOver())
+          {
+              isDie = true;
+              return;
+          }
+          requestAnimationFrame(gameLoop);
       }
 
       document.addEventListener("keydown", (event) =>
@@ -116,8 +174,12 @@
     <div id="player">
       <img src="assets/마리오.png" width="50px" height="50px">
     </div>
-    <div class="enemy">
+    <div class="enemy" id="enemy">
       <img src="assets/킬러.webp" width="100px">
+    </div>
+
+    <div id="score">
+      SCORE : 0
     </div>
   </div>
 </body>
