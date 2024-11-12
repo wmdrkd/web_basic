@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>메모리 카드 게임</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #f0f0f0;
+    }
+    .game-board {
+      display: grid;
+      grid-template-columns: repeat(4, 100px);
+      grid-gap: 10px;
+    }
+    .card {
+      width: 100px;
+      height: 100px;
+      background-color: #333;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 24px;
+      color: white;
+      cursor: pointer;
+      border-radius: 8px;
+      user-select: none;
+    }
+    .card.flipped {
+      background-color: #ffcc00;
+      color: #333;
+    }
+    .card.matched {
+      background-color: #28a745;
+      color: white;
+      cursor: default;
+    }
+    .card .icon {
+      visibility: hidden;
+    }
+    .card.flipped .icon,
+    .card.matched .icon {
+      visibility: visible;
+    }
+  </style>
+</head>
+<body>
+
+<div class="game-board">
+  <!-- 카드가 배치될 곳 -->
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).ready(function() {
+        const icons = ['🍎', '🍌', '🍇', '🍒', '🍎', '🍌', '🍇', '🍒'];
+        const board = $('.game-board');
+        let flippedCards = [];
+        let matchedPairs = 0;
+
+        // 카드 셔플 함수
+        function shuffle(array) {
+            array.sort(() => Math.random() - 0.5);
+        }
+
+        // 카드 생성 및 초기화
+        function initGame() {
+            shuffle(icons);
+            icons.forEach(icon => {
+                const card = $('<div class="card"></div>');
+                const iconElement = $('<span class="icon"></span>').text(icon);
+                card.append(iconElement);
+                card.data('icon', icon);
+                card.on('click', handleCardClick);
+                board.append(card);
+            });
+        }
+
+        // 카드 클릭 핸들러
+        function handleCardClick() {
+            const card = $(this);
+            if (card.hasClass('flipped') || card.hasClass('matched')) return;
+
+            card.addClass('flipped');
+            flippedCards.push(card);
+
+            if (flippedCards.length === 2) {
+                const [card1, card2] = flippedCards;
+                if (card1.data('icon') === card2.data('icon')) {
+                    card1.addClass('matched');
+                    card2.addClass('matched');
+                    matchedPairs++;
+                    if (matchedPairs === icons.length / 2) {
+                        alert('축하합니다! 모든 짝을 맞췄습니다!');
+                    }
+                } else {
+                    setTimeout(() => {
+                        card1.removeClass('flipped');
+                        card2.removeClass('flipped');
+                    }, 1000);
+                }
+                flippedCards = [];
+            }
+        }
+
+        initGame();
+    });
+</script>
+
+</body>
+</html>

@@ -4,6 +4,26 @@
   <meta charset="UTF-8">
   <title>Title</title>
   <style>
+   .sliding-background
+   {
+     background: url("assets/background.jpg");
+     width: 200%;
+     height: 100%;
+     animation: slide 20s linear infinite;
+   }
+
+    @keyframes slide
+    {
+      from
+      {
+        transform: translate(0, 0);
+      }
+      to
+      {
+        transform: translate(-620px,0);
+      }
+    }
+
     #background
     {
       position: absolute;
@@ -15,12 +35,14 @@
     }
     #player
     {
+      z-index: 1;
       position: absolute;
       left: 30px;
       bottom: 80px;
     }
     .enemy
     {
+      z-index: 2;
       position: absolute;
       right: 10px;
       bottom: 100px;
@@ -30,6 +52,14 @@
       text-align: center;
       font-size: xxx-large;
       color: black;
+    }
+    .bullet
+    {
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      bottom: 100px;
+      left: 30px;
     }
   </style>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
@@ -100,6 +130,8 @@
               setScore(score);
           }
 
+          $("#enemy").show();
+
           isSpawning = true;
           enemySpeed = Math.random() * 15 + 5; // 0.0 ~ 1.0
           // 5 ~ 20
@@ -144,14 +176,40 @@
           return isColliding;
       }
 
+      function fire()
+      {
+          const id = Date.now();
+          $("#background").append(`<div id="${id}" class="bullet">총알</div>`);
+
+          $(`#${id}`).animate({
+              left : "500px"
+          })
+      }
+
+      function checkEnemyDie()
+      {
+          const enemy = document.getElementById("enemy");
+
+          $(".bullet").each(() => {
+              if(checkCollision(this, enemy))
+              {
+                  $(this).remove();
+                  $(enemy).hide();
+                  respawnEnemy();
+              }
+          })
+      }
+
       function gameLoop()
       {
           moveEnemy();
 
+          checkEnemyDie();
+
           if(checkGameOver())
           {
               isDie = true;
-              return;
+              //return;
           }
           requestAnimationFrame(gameLoop);
       }
@@ -162,6 +220,11 @@
           {
               jump();
           }
+          else if(event.key === "Control")
+          {
+              fire();
+              console.log("fire");
+          }
       });
 
       $(() => {
@@ -171,6 +234,8 @@
 </head>
 <body>
   <div id="background">
+    <div class="sliding-background"></div>
+
     <div id="player">
       <img src="assets/마리오.png" width="50px" height="50px">
     </div>

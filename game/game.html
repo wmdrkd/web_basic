@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <title>점프 게임</title>
+  <style>
+    /* 전체 게임 화면 */
+    #gameContainer {
+      position: relative;
+      width: 500px;
+      height: 700px;
+      border: 1px solid black;
+      overflow: hidden;
+      margin: auto;
+      background-image: url("assets/배경.png"); /* 배경 이미지 */
+      background-size: cover;
+    }
+
+    /* 플레이어 */
+    #player {
+      position: absolute;
+      width: 50px;
+      height: 50px;
+      background-image: url("assets/player.png"); /* 플레이어 이미지 */
+      background-size: cover;
+    }
+
+    /* 발판 */
+    .platform {
+      position: absolute;
+      width: 80px;
+      height: 20px;
+    }
+
+    /* 발판의 종류별 색상 또는 스타일 */
+    .normal-platform { background-color: green; }
+    .moving-platform { background-color: orange; }
+    .breakable-platform { background-color: red; }
+    .bounce-platform { background-color: purple; }
+
+    /* 아이템 스타일 */
+    .score-item, .invincibility-item, .speed-item {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      position: absolute;
+    }
+
+    .score-item { background-image: url("assets/score-item.png"); background-size: cover; }
+    .invincibility-item { background-image: url("assets/invincibility-item.png"); background-size: cover; }
+    .speed-item { background-image: url("assets/speed-item.png"); background-size: cover; }
+
+    /* 점수 표시 */
+    #scoreDisplay {
+      text-align: center;
+      font-size: large;
+      margin-top: 10px;
+    }
+  </style>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+  <script>
+      // 게임 관련 변수들
+      const gravity = 0.5;
+      const jumpPower = -10;
+      const maxSpeed = 5; // 최대 이동 속도
+      let playerVelocityY = 0;
+      let playerVelocityX = 0; // 가로 속도 추가
+      let playerX = 200, playerY = 100;
+      let score = 0;
+      let isInvincible = false;
+      let platforms = [];
+      let items = [];
+      let keys = {}; // 눌린 키를 저장
+
+      // 발판 생성
+      function createPlatform(type, bottom, left) {
+          let platform = $("<div class='platform'></div>");
+          platform.addClass(type + '-platform');
+          platform.css({ bottom: bottom + "px", left: left + "px" });
+          $("#gameContainer").append(platform);
+          platforms.push({ element: platform, type: type, movingDirection: 1 });
+      }
+
+      function randomPlatformType() {
+          const types = ['normal', 'moving', 'breakable', 'bounce'];
+          return types[Math.floor(Math.random() * types.length)];
+      }
+
+      function generatePlatforms() {
+          for (let i = 0; i < 10; i++) {
+              const type = randomPlatformType();
+              const bottom = (i * 100);
+              const left = Math.random() * 420;
+              createPlatform(type, bottom, left);
+          }
+      }
+
+      function movePlatform(platform) {
+          const left = parseInt(platform.element.css("left"));
+          if (left <= 0 || left >= 420) platform.movingDirection *= -1;
+          platform.element.css("left", left + platform.movingDirection * 2 + "px");
+      }
+
+      function applyPlatformEffects(platform) {
+          switch(platform.type) {
+              case 'moving': movePlatform(platform); break;
+              case 'breakable': platform.element.fadeOut(500, () => platform.element.remove()); break;
+              case 'bounce': playerVelocityY = jumpPower * 1.5; break;
+              default: playerVelocityY = jumpPower;
+          }
+      }
+
+      function checkPlatformCollision() {
+          platforms.forEach(platform => {
+              const platformPos = platform.element.position();
+              if (playerY + 50 > platformPos.top &&
+                  playerY + 50 < platformPos.top + 20 &&
+                  playerX + 50 > platformPos.left &&
+                  playerX < platformPos.left + 80) {
+                  applyPlatformEffects(platform);
+              }
+          });
+      }
+
+      // 아이템 생성
+      function createItem(type, bottom, left) {
+          let item = $("<div class='item'></div>");
+          item.addClass(type + '-item');
+          item.css({ bottom: bottom + "px", left: left + "px" });
+          $("#gameContainer").append(item);
+          items.push({ element: item, type: type });
+      }
+
+      function randomItemType() {
+          const types = ['score', 'invincibility', 'speed'];
+          return types[Math.floor(Math.random() * types.length)];
+      }
+
+      function generateItems() {
+          for (let i = 0; i < 3; i++) {
+              const type = randomItemType();
+              const bottom = Math.random() * 600;
+              const left = Math.random() * 480;
+              createItem(type, bottom, left);
+          }
+      }
+
+      function applyItemEffects(item) {
+          switch(item.type) {
+              case 'score': score += 100; $("#scoreDisplay").text("Score: " + score); break;
+              case 'invincibility': isInvincible = true; setTimeout(() => { isInvincible = false; }, 5000); break;
+              case 'speed': playerVelocityY = jumpPower * 1.5; setTimeout(() => { playerVelocityY = jumpPower; }, 5000); break;
+          }
+          item.element.remove();
+      }
+
+      function checkItemCollision() {
+          items.forEach(item => {
+              const itemPos = item.element.position();
+              if (playerY + 50 > itemPos.top &&
+                  playerY < itemPos.top + 20 &&
+                  playerX + 50 > itemPos.left &&
+                  playerX < itemPos.left + 20) {
+                  applyItemEffects(item);
+                  items = items.filter(i => i !== item);
+              }
+          });
+      }
+
+      function update() {
+          playerVelocityY += gravity;
+          playerY -= playerVelocityY;
+
+          checkPlatformCollision();
+          checkItemCollision();
+
+          if (playerY < 0) { playerY = 0; playerVelocityY = jumpPower; }
+
+          $("#player").css({ bottom: playerY + "px", left: playerX + "px" });
+
+          requestAnimationFrame(update);
+      }
+
+      $(document).ready(() => {
+          $("#gameContainer").append("<div id='player'></div>");
+          generatePlatforms();
+          generateItems();
+          update();
+      });
+
+      $(document).keydown((e) => {
+          if (e.key === "ArrowLeft") playerX -= 10;
+          if (e.key === "ArrowRight") playerX += 10;
+      });
+  </script>
+</head>
+<body>
+<div id="scoreDisplay">Score: 0</div>
+<div id="gameContainer"></div>
+</body>
+</html>
